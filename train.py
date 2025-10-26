@@ -73,7 +73,9 @@ def run_validation(model, validation_ds, tokenizer_src, tokenizer_tgt, max_len, 
 
             source_text = batch['src_text'][0]
             target_text = batch['tgt_text'][0]
-            model_out_text = tokenizer_tgt.decode(model_out.detach().cpu().numpy())
+            
+            # --- THIS IS THE CORRECTED LINE ---
+            model_out_text = tokenizer_tgt.decode(model_out[0].detach().cpu().numpy())
 
             # Print to the console
             print_msg('-'*console_width)
