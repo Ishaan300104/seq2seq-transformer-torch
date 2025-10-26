@@ -18,11 +18,11 @@ from config import get_weights_file_path, get_config
 
 from torch.utils.tensorboard import SummaryWriter
 
-def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt,max_len, device):
+def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt, max_len, device):
     sos_idx = tokenizer_tgt.token_to_id('[SOS]')
     eos_idx = tokenizer_tgt.token_to_id('[EOS]')
 
-    # Precompute the encoder output and resuse it for every token we get from the decoder
+    # Precompute the encoder output and reuse it for every token we get from the decoder
     encoder_output = model.encode(source, source_mask)
 
     # Initialize the decoder input with the SOS token
@@ -41,12 +41,14 @@ def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt,max_l
         # Get the next token
         prob = model.project(out[:, -1])
 
-        # Select the token with the max probability (because it is a greedy search)
+        # Select the token with the max probability (greedy search)
         _, next_word = torch.max(prob, dim=-1)
         decoder_input = torch.cat([decoder_input, torch.empty(1, 1).type_as(source).fill_(next_word.item()).to(device)], dim=-1)
 
         if next_word == eos_idx:
             break
+            
+    return decoder_input
 
 def run_validation(model, validation_ds, tokenizer_src, tokenizer_tgt, max_len, device, print_msg, global_state, writer, num_examples=2):
     model.eval()
